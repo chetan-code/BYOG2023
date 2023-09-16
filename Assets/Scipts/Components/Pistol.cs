@@ -12,35 +12,36 @@ public class Pistol : Gun
         timeBetweenShoot = 1f / fireRate;
     }
 
-    public override void Shoot()
+    public override void Shoot(Vector3 startPos,Vector3 aimPos)
     {
-        Debug.Log("[Pistol] : Shoot");
+        
         if (Time.time - shootTime < timeBetweenShoot)
         {
             Debug.Log("cant shoot");
             return;
         }
         else {
-            Debug.Log("else shoot");
             shootTime = Time.time;
-            if (Physics.Raycast(nozzle.position, nozzle.forward, out hit, raycastDist))
+            if (Physics.Raycast(startPos, (aimPos- startPos), out hit, raycastDist))
             {
                 if (hit.collider != null)
                 {
-                    StartCoroutine(TrailEffect(nozzle.position + (nozzle.forward * raycastDist)));
-                    Debug.Log(" Shoot Damage");
+                    Enemy enemy = hit.collider.GetComponent<Enemy>();
+
+                    StartCoroutine(TrailEffect(hit.point, enemy));
+                    Debug.Log(" Shoot Damage to : " + hit.collider.name);
                 }
             }
             else
             {
-                StartCoroutine(TrailEffect(nozzle.position + (nozzle.forward * raycastDist)));
+                StartCoroutine(TrailEffect(nozzle.position + (nozzle.forward * raycastDist), null));
                     Debug.Log("Shoot - Fake Trail");
             }
 
         }
     }
 
-    private IEnumerator TrailEffect(Vector3 hitPoint) {
+    private IEnumerator TrailEffect(Vector3 hitPoint , Enemy enemy) {
         trail.emitting = false;
         float timeSpent = 0;
         Vector3 startPos = nozzle.position;
@@ -52,6 +53,9 @@ public class Pistol : Gun
             trail.transform.position = Vector3.Lerp(hitPoint, startPos, (timeBetweenShoot - timeSpent)/timeBetweenShoot);
             timeSpent += Time.deltaTime;
             yield return null;
+        }
+        if (enemy != null) {
+            enemy.TakeDamage(hitPoint, damagePerHit);
         }
     }
 

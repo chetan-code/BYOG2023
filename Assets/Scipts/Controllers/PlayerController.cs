@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
 
     private float jumpDuration = 1f;
     public bool isJumping = false;
+    private Vector3 aimPos = Vector3.zero;
     private RaycastHit hit;
     // Start is called before the first frame update
     void Start()
@@ -46,7 +47,7 @@ public class PlayerController : MonoBehaviour
 
         Aim(Input.mousePosition);
         if (Input.GetMouseButtonDown(0)) {
-            activeGun.Shoot();
+            activeGun.Shoot(gunCenter.position, aimPos);
             Debug.Log("Shoot");
         }
         if (Physics.Raycast(player.transform.position, player.transform.forward, out hit,raycastDist,obstacleLayer)) {
@@ -63,9 +64,9 @@ public class PlayerController : MonoBehaviour
 
     private void Aim(Vector3 mousePos) {
         float distanceFromCamera = 10f;
-        Vector3 worldPosition = mainCam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, distanceFromCamera));
-        Debug.DrawLine(gunCenter.position, worldPosition, Color.red);
-        gunCenter.LookAt(worldPosition, Vector3.up);
+        aimPos = mainCam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, distanceFromCamera));
+        Debug.DrawLine(gunCenter.position, aimPos, Color.red);
+        gunCenter.LookAt(aimPos, Vector3.up);
     }
 
     public void Run(float speed) {
