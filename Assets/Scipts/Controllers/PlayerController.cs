@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlatformController platformController;
     [SerializeField] private float jumpExtraHeight = 2f;
     [SerializeField] private float baseObstacleHeight = 1;
+    [SerializeField] private Gun activeGun;
     private Camera mainCam;
 
     private float jumpDuration = 1f;
@@ -43,6 +44,10 @@ public class PlayerController : MonoBehaviour
         }
 
         Aim(Input.mousePosition);
+        if (Input.GetMouseButtonDown(0)) {
+            activeGun.Shoot();
+            Debug.Log("Shoot");
+        }
         if (Physics.Raycast(player.transform.position, player.transform.forward, out hit,raycastDist,obstacleLayer)) {
             BoxCollider boxCollider = hit.collider as BoxCollider;
             if (boxCollider != null)
@@ -60,6 +65,10 @@ public class PlayerController : MonoBehaviour
         Vector3 worldPosition = mainCam.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, distanceFromCamera));
         Debug.DrawLine(gunCenter.position, worldPosition, Color.red);
         gunCenter.LookAt(worldPosition, Vector3.up);
+    }
+
+    private void Shoot() { 
+    
     }
 
     private void Jump(float obstacleHeight) {
