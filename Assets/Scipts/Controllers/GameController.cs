@@ -29,6 +29,10 @@ public class GameController : MonoBehaviour
             {
                 if (playerController.isJumping) { return; }
                 platformController.MovePlatform(Time.deltaTime);
+                playerController.Run(1);
+            }
+            else { 
+                playerController.Run(0);
             }
         }
     }

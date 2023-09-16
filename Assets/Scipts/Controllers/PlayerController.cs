@@ -13,6 +13,7 @@ public class PlayerModel{
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Transform player;
+    [SerializeField] private Animator animator;
     [SerializeField] private PlayerModel data;
     [SerializeField] private Transform gunCenter;
     [SerializeField] private LayerMask obstacleLayer;
@@ -67,12 +68,17 @@ public class PlayerController : MonoBehaviour
         gunCenter.LookAt(worldPosition, Vector3.up);
     }
 
+    public void Run(float speed) {
+        animator.SetFloat("MoveSpeed", speed);
+    }
+
     private void Shoot() { 
     
     }
 
     private void Jump(float obstacleHeight) {
         StartCoroutine(StartTimer(obstacleHeight));
+        animator.SetBool("Jump", true);
     }
 
     float remainingTime = 0;
@@ -93,5 +99,6 @@ public class PlayerController : MonoBehaviour
         }
         jumpDuration = 1f;
         isJumping = false;
+        animator.SetBool("Jump", isJumping);
     }
 }
