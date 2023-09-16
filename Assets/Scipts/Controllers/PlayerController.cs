@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -8,6 +9,7 @@ public class PlayerModel{
     //public float speed = 5;
 }
 
+
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Transform player;
@@ -15,9 +17,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform gunCenter;
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float raycastDist = 2f;
-
+    [SerializeField] private PlatformController platformController;
+    [SerializeField] private float jumpExtraHeight = 2f;
+    [SerializeField] private float baseObstacleHeight = 1;
     private Camera mainCam;
 
+    private float jumpDuration = 1f;
+    public bool isJumping = false;
+    private RaycastHit hit;
     // Start is called before the first frame update
     void Start()
     {
@@ -31,10 +38,18 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        if (isJumping) {
+            return;
+        }
 
         Aim(Input.mousePosition);
-        if (Physics.Raycast(player.transform.position, player.transform.forward, raycastDist, obstacleLayer)) {
-            Debug.Log("Jump"); 
+        if (Physics.Raycast(player.transform.position, player.transform.forward, out hit,raycastDist,obstacleLayer)) {
+            BoxCollider boxCollider = hit.collider as BoxCollider;
+            if (boxCollider != null)
+            {
+                float height = boxCollider.size.y * hit.transform.lossyScale.y;
+                Jump(height);
+            }
         }
         Debug.DrawLine(player.transform.position, player.transform.position + player.transform.forward * raycastDist, Color.green);
     }
@@ -47,6 +62,27 @@ public class PlayerController : MonoBehaviour
         gunCenter.LookAt(worldPosition, Vector3.up);
     }
 
-    private void Jump() { 
+    private void Jump(float obstacleHeight) {
+        StartCoroutine(StartTimer(obstacleHeight));
+    }
+
+    float remainingTime = 0;
+    
+    private IEnumerator StartTimer(float obstacleHeight)
+    {
+        isJumping = true;
+        jumpDuration = (obstacleHeight/baseObstacleHeight) * jumpDuration;
+        remainingTime = jumpDuration;
+        player.transform.DOJump(player.transform.position,obstacleHeight + jumpExtraHeight, 1,jumpDuration);
+        while (remainingTime > 0f)
+        {
+            remainingTime -= Time.deltaTime;
+
+            platformController.MovePlatform(Time.deltaTime);
+
+            yield return null;
+        }
+        jumpDuration = 1f;
+        isJumping = false;
     }
 }

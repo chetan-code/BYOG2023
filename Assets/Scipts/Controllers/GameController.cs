@@ -6,6 +6,7 @@ public class GameController : MonoBehaviour
 {
     [SerializeField] private GameObject startText;
     [SerializeField] private PlatformController platformController;
+    [SerializeField] private PlayerController playerController;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,6 +27,7 @@ public class GameController : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.Space))
             {
+                if (playerController.isJumping) { return; }
                 platformController.MovePlatform(Time.deltaTime);
             }
         }
